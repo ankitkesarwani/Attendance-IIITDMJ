@@ -8,7 +8,8 @@ import android.widget.Button;
 
 public class StartActivity extends AppCompatActivity {
 
-    private Button mCreateAccountBtn, mSigninBtn;
+    private Button mCreateAccountBtn;
+    private Button mSigninBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
