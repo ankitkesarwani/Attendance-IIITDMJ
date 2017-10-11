@@ -37,7 +37,8 @@ public class Signin extends AppCompatActivity {
 
     private ProgressDialog mLoginProgress;
     private FirebaseAuth mAuth;
-    private DatabaseReference mUserDatabase;
+    private DatabaseReference mStudentDatabase;
+    private DatabaseReference mFacultyDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +54,12 @@ public class Signin extends AppCompatActivity {
 
         mLoginProgress = new ProgressDialog(this);
 
-        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
+        mStudentDatabase = FirebaseDatabase.getInstance().getReference().child("Students");
+        mFacultyDatabase = FirebaseDatabase.getInstance().getReference().child("Faculty");
         mEmailId = (TextInputLayout) findViewById(R.id.create_account_email_id);
         mPassword = (TextInputLayout) findViewById(R.id.create_account_password);
         mAccountFor = (Spinner) findViewById(R.id.signin_spinner);
+
 
         mSigninBtn = (Button) findViewById(R.id.signin_btn);
 
@@ -105,7 +108,7 @@ public class Signin extends AppCompatActivity {
 
     }
 
-    private void loginUser(String email, String password) {
+    private void loginUser(final String email, String password) {
 
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
@@ -119,17 +122,36 @@ public class Signin extends AppCompatActivity {
 
                     String deviceToken = FirebaseInstanceId.getInstance().getToken();
 
-                    mUserDatabase.child(current_user_id).child("device_token").setValue(deviceToken).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
+                    if(userRole.equals("Student")) {
 
-                            Intent mainIntent = new Intent(Signin.this, MainActivity.class);
-                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(mainIntent);
-                            finish();
+                        mStudentDatabase.child(current_user_id).child("device_token").setValue(deviceToken).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
 
-                        }
-                    });
+                                Intent mainIntent = new Intent(Signin.this, MainActivity.class);
+                                mainIntent.putExtra("userRole", userRole);
+                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(mainIntent);
+                                finish();
+
+                            }
+                        });
+                    } else if(userRole.equals("Faculty")) {
+
+                        mFacultyDatabase.child(current_user_id).child("device_token").setValue(deviceToken).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+
+                                Intent mainIntent = new Intent(Signin.this, MainActivity.class);
+                                mainIntent.putExtra("userRole", userRole);
+                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(mainIntent);
+                                finish();
+
+                            }
+                        });
+
+                    }
 
                 } else {
 

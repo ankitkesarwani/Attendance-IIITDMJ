@@ -96,7 +96,7 @@ public class CreateAccount extends AppCompatActivity {
         adapter_role.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mAccountFor.setAdapter(adapter_role);
 
-        mCreateAccountBtn.setOnClickListener(new View.OnClickListener() {
+        mCreateAccountBtn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -176,9 +176,16 @@ public class CreateAccount extends AppCompatActivity {
                         HashMap<String, String> userMap = new HashMap<>();
                         userMap.put("device_token", deviceToken);
                         userMap.put("name", name);
+                        userMap.put("designation", "No designation Added");
+                        userMap.put("address", "No Address Added");
+                        userMap.put("webpage", "No Webpage Added");
                         userMap.put("contact_number", contactNo);
                         userMap.put("image", "default");
                         userMap.put("thumb_image", "default");
+                        userMap.put("facebook_link", "https://www.facebook.com/");
+                        userMap.put("twitter_link", "https://twitter.com/");
+                        userMap.put("linkedin_link", "https://www.linkedin.com/in/");
+                        userMap.put("github_link", "https://github.com/");
 
                         mDatabase.setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override

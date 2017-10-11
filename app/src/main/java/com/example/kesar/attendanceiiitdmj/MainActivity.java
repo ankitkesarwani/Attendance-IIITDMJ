@@ -1,43 +1,145 @@
 package com.example.kesar.attendanceiiitdmj;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.design.widget.TabLayout;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
+
+import org.w3c.dom.Text;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private FirebaseAuth mAuth;
     private Toolbar mToolbar;
 
-    private DatabaseReference mUserRef;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mToggle;
 
-    private TabLayout mTabLayout;
+    private CircleImageView mProfileImage;
+    private TextView mName;
+    private TextView mEmail;
+
+    private DatabaseReference mRootRef;
+
+    private FirebaseUser mCurrentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mAuth = FirebaseAuth.getInstance();
-
         mToolbar = (Toolbar) findViewById(R.id.main_layout);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle("IIITDM JABALPUR");
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.main_drawer);
+        mToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.open, R.string.close);
+        mDrawerLayout.addDrawerListener(mToggle);
+        mToggle.syncState();
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (mAuth.getCurrentUser() != null) {
+        mRootRef = FirebaseDatabase.getInstance().getReference();
 
-            mUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid());
+        mProfileImage = (CircleImageView) findViewById(R.id.header_image);
+        mName = (TextView) findViewById(R.id.header_name);
+        mEmail = (TextView) findViewById(R.id.header_email);
+
+        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        assert mCurrentUser != null;
+        String current_uid = mCurrentUser.getUid();
+        final String email = mCurrentUser.getEmail();
+
+        String userRole = String.valueOf(getIntent().getExtras());
+
+        if (userRole != null) {
+
+            if(userRole.equals("Faculty")) {
+
+                mRootRef.child("Faculty").child(current_uid).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        String name = dataSnapshot.child("name").getValue().toString();
+                        String image = dataSnapshot.child("image").getValue().toString();
+
+                        mName.setText(name);
+                        mEmail.setText(email);
+
+                        if(!image.equals("default")) {
+
+                            //Picasso.with(SettingsActivity.this).load(image).placeholder(R.drawable.default_avatar).into(mDisplayImage);
+                            Picasso.with(getApplicationContext()).load(image).placeholder(R.drawable.avatar).into(mProfileImage);
+
+                        }
+
+
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            } else if(userRole.equals("Student")) {
+
+                mRootRef.child("Students").child(current_uid).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        String name = dataSnapshot.child("name").getValue().toString();
+                        final String image = dataSnapshot.child("image").getValue().toString();
+
+                        mName.setText(name);
+                        mEmail.setText(email);
+
+                        if(!image.equals("default")) {
+
+                            //Picasso.with(SettingsActivity.this).load(image).placeholder(R.drawable.default_avatar).into(mDisplayImage);
+                            Picasso.with(getApplicationContext()).load(image).placeholder(R.drawable.avatar).into(mProfileImage);
+
+                        }
+
+
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            }
 
         } else {
 
@@ -50,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if (currentUser == null) {
 
@@ -85,7 +187,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        super.onOptionsItemSelected(item);
+
+        if (mToggle.onOptionsItemSelected(item)) {
+
+            return true;
+
+        }
 
         if(item.getItemId() == R.id.main_logout_btn) {
 
@@ -94,19 +201,13 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        if(item.getItemId() == R.id.main_settings_btn) {
+        if (item.getItemId() == R.id.main_user_profile) {
 
-
-
-        }
-
-        if(item.getItemId() == R.id.main_all_btn) {
-
-
+            Intent userProfile = new Intent(MainActivity.this, ProfileActivity.class);
+            startActivity(userProfile);
 
         }
-
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 
 }

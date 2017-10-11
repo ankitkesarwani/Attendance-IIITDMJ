@@ -4,15 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@drawable/main"
     tools:context="com.example.kesar.attendanceiiitdmj.StartActivity">
 
     <ImageView
         android:id="@+id/start_logo"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:layout_marginTop="44dp"
-        app:srcCompat="@drawable/iiitdmjlogo"
+        app:srcCompat="@drawable/attendance"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
